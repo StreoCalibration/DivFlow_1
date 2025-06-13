@@ -21,6 +21,14 @@ class Portfolio:
         total = self.get_total_value()
         return {t: a.get_weight_percentage(total) for t, a in self.assets.items()}
 
+    def print_allocation(self) -> None:
+        """현재 비중과 목표 비중을 콘솔에 출력한다."""
+        ratios = self.get_allocation_ratios()
+        for ticker, asset in self.assets.items():
+            desired = asset.weight * 100
+            current = ratios.get(ticker, 0.0)
+            print(f"{ticker}: 설정 {desired:.1f}% | 현재 {current:.1f}%")
+
     def update_prices(self, prices: Dict[str, float], dividends: Optional[Dict[str, float]] = None) -> None:
         for ticker, price in prices.items():
             if ticker in self.assets:
@@ -81,13 +89,27 @@ class PortfolioApp:
     def calculate_rebalancing(self, amount: float) -> Dict[str, int]:
         """입금액(원화)을 사용하여 매수 권장 수량을 계산한다."""
         deposit = amount / self.exchange_rate
-        total = self.portfolio.get_total_value() + deposit
-        allocations = {}
-        for asset in self.portfolio.assets.values():
-            desired_value = total * asset.weight
-            to_buy_value = max(desired_value - asset.get_value(), 0)
-            if asset.close_price > 0:
-                allocations[asset.ticker] = int(to_buy_value / asset.close_price)
-            else:
-                allocations[asset.ticker] = 0
+
+        # 현재 비중 정보를 출력
+        self.portfolio.print_allocation()
+
+        allocations = {t: 0 for t in self.portfolio.assets}
+        values = {t: a.get_value() for t, a in self.portfolio.assets.items()}
+        prices = {t: a.close_price for t, a in self.portfolio.assets.items()}
+        weights = {t: a.weight for t, a in self.portfolio.assets.items()}
+
+        while True:
+            total = sum(values.values()) + deposit
+            desired = {t: total * weights[t] for t in values}
+            gaps = {t: desired[t] - values[t] for t in values}
+            ticker = max(gaps, key=gaps.get)
+            if gaps[ticker] <= 0:
+                break
+            price = prices[ticker]
+            if price <= 0 or deposit < price:
+                break
+            values[ticker] += price
+            allocations[ticker] += 1
+            deposit -= price
+
         return allocations

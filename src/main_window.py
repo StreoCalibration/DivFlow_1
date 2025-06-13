@@ -25,7 +25,8 @@ class MainWindow(tk.Tk):
 
         columns = (
             "티커",
-            "비중",
+            "목표비중(%)",
+            "현재비중(%)",
             "주수",
             "평균 단가",
             "전일종가(외화)",
@@ -105,6 +106,7 @@ class MainWindow(tk.Tk):
     def update_ui(self) -> None:
         self._clear_table()
         rate = self.app.exchange_rate
+        ratios = self.app.portfolio.get_allocation_ratios()
         for asset in self.app.portfolio.assets.values():
             price = asset.close_price
             value = asset.get_value()
@@ -114,6 +116,7 @@ class MainWindow(tk.Tk):
                 values=(
                     asset.ticker,
                     f"{asset.weight*100:.1f}%",
+                    f"{ratios.get(asset.ticker, 0.0):.1f}%",
                     asset.shares,
                     f"{asset.avg_cost:,.2f}",
                     f"{price:,.2f}",
