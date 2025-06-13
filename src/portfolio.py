@@ -71,7 +71,9 @@ class PortfolioApp:
             self.ui.update_ui()
 
     def calculate_rebalancing(self, amount: float) -> Dict[str, int]:
-        total = self.portfolio.get_total_value() + amount
+        """입금액(원화)을 사용하여 매수 권장 수량을 계산한다."""
+        deposit = amount / self.exchange_rate
+        total = self.portfolio.get_total_value() + deposit
         allocations = {}
         for asset in self.portfolio.assets.values():
             desired_value = total * asset.weight

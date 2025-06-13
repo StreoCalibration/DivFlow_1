@@ -50,7 +50,7 @@ class PortfolioAppUI(tk.Tk):
         # 입력 패널
         input_frame = tk.Frame(main_frame, width=300)
         input_frame.pack(side=tk.RIGHT, fill=tk.Y)
-        fields = [("ETF 티커", ""), ("매입 단가", ""), ("입금액", "")]
+        fields = [("ETF 티커", ""), ("매입 단가", ""), ("입금액(원화)", "")]
         for label, _ in fields:
             row = tk.Frame(input_frame)
             tk.Label(row, text=label, width=12, anchor='w').pack(side=tk.LEFT)
