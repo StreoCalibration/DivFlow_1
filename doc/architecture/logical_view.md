@@ -25,7 +25,7 @@
   - 메서드: fetchClosePrice(), fetchDividend(), fetchAll()
 
 - **PortfolioStorage**  
-  - 메서드: save(), load()
+  - 메서드: save(), load(), save_exchange_rate(), load_exchange_rate()
 
 - **MainWindow**  
   - UI 컴포넌트 및 이벤트 핸들러 (onRefreshClicked, onSaveClicked, onAddFundClicked)

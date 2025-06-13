@@ -40,6 +40,8 @@ classDiagram
     class PortfolioStorage {
         +save(portfolio)
         +load(): Portfolio
+        +save_exchange_rate(rate)
+        +load_exchange_rate(): float
     }
     class MainWindow {
         -tableWidget

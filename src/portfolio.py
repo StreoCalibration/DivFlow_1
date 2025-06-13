@@ -62,6 +62,7 @@ class PortfolioApp:
 
     def save_state(self) -> None:
         self.storage.save(self.portfolio)
+        self.storage.save_exchange_rate(self.exchange_rate)
 
     def load_state(self) -> None:
         loaded = self.storage.load()
@@ -71,6 +72,9 @@ class PortfolioApp:
             prices = {t: a.close_price for t, a in loaded.assets.items()}
             dividends = {t: a.dividend_yield for t, a in loaded.assets.items()}
             self.price_fetcher.load_cache(prices, dividends)
+        rate = self.storage.load_exchange_rate()
+        if rate is not None:
+            self.exchange_rate = rate
         if self.ui:
             self.ui.update_ui()
 

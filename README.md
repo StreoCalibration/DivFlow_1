@@ -28,6 +28,7 @@ python -m src
 가 발생할 수 있습니다. 반드시 위와 같이 패키지 형태로 실행하세요.
 
 포트폴리오 데이터는 저장 시 `data/portfolio.json` 파일로 관리됩니다.
+환율 정보는 `data/exchange_rate.json` 파일에 별도로 저장됩니다.
 애플리케이션을 처음 실행하면 `data` 폴더가 자동으로 생성됩니다.
 모든 UI 텍스트는 한국어로 제공됩니다.
 시세 조회 기능(`PriceFetcher`)은 Yahoo Finance API를 사용하며 인터넷 연결 실패 시
