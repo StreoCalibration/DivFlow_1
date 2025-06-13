@@ -27,8 +27,12 @@ class MainWindow(tk.Tk):
         self.table = ttk.Treeview(frame, columns=columns, show="headings")
         for col in columns:
             self.table.heading(col, text=col)
+            # 컬럼을 창 크기에 맞춰 늘어나도록 설정
+            self.table.column(col, stretch=True)
         self.table.pack(fill=tk.BOTH, expand=True)
         self.table.bind("<Double-1>", self.on_edit_asset)
+        # 창 크기가 변할 때 컬럼 너비를 자동 조절
+        self.table.bind("<Configure>", self._on_table_configure)
 
         form = ttk.Frame(frame)
         form.pack(fill=tk.X, pady=5)
@@ -170,3 +174,14 @@ class MainWindow(tk.Tk):
     def on_close(self) -> None:
         self.app.save_state()
         self.destroy()
+
+    def _on_table_configure(self, event) -> None:
+        """창 크기에 맞춰 컬럼 너비를 조정한다."""
+        if event.width <= 1:
+            return
+        total_cols = len(self.table["columns"])
+        if total_cols == 0:
+            return
+        col_width = max(event.width // total_cols, 20)
+        for col in self.table["columns"]:
+            self.table.column(col, width=col_width)
