@@ -2,6 +2,7 @@ import json
 import urllib.error
 import urllib.parse
 import urllib.request
+import time
 from typing import Dict, Iterable, Tuple, Optional
 
 
@@ -13,6 +14,7 @@ class PriceFetcher:
         self._price_cache: Dict[str, float] = {}
         self._dividend_cache: Dict[str, float] = {}
         self._exchange_rate: Optional[float] = None
+        self._rate_timestamp: float = 0.0
 
     def _fetch_yahoo_quote(self, ticker: str) -> Optional[dict]:
         """야후 파이낸스에서 쿼트 정보를 가져온다."""
@@ -89,7 +91,8 @@ class PriceFetcher:
 
     def fetch_exchange_rate(self) -> float:
         """원/달러 환율을 외부 API에서 조회한다."""
-        if self._exchange_rate is None:
+        now = time.time()
+        if self._exchange_rate is None or now - self._rate_timestamp > 600:
             url = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=USDKRW=X"
             try:
                 with urllib.request.urlopen(url, timeout=5) as resp:
@@ -100,6 +103,7 @@ class PriceFetcher:
             except (urllib.error.URLError, json.JSONDecodeError) as e:
                 print(f"환율 조회 실패: {e}")
                 self._exchange_rate = 0.0
+            self._rate_timestamp = now
         if self._exchange_rate is None:
             print("환율 조회 실패")
             self._exchange_rate = 0.0
