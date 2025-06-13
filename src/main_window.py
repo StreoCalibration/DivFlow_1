@@ -27,8 +27,12 @@ class MainWindow(tk.Tk):
         self.table = ttk.Treeview(frame, columns=columns, show="headings")
         for col in columns:
             self.table.heading(col, text=col)
+            # 컬럼을 창 크기에 맞춰 늘어나도록 설정
+            self.table.column(col, stretch=True)
         self.table.pack(fill=tk.BOTH, expand=True)
         self.table.bind("<Double-1>", self.on_edit_asset)
+        # 창 크기가 변할 때 컬럼 너비를 자동 조절
+        self.table.bind("<Configure>", self._on_table_configure)
 
         form = ttk.Frame(frame)
         form.pack(fill=tk.X, pady=5)
@@ -49,10 +53,16 @@ class MainWindow(tk.Tk):
 
         self.btn_add = ttk.Button(form, text="추가", command=self.on_add_or_update)
         self.btn_add.grid(row=1, column=4, padx=5)
-        ttk.Button(form, text="삭제", command=self.on_remove_asset).grid(row=1, column=5, padx=5)
-        ttk.Button(form, text="갱신", command=self.on_refresh_clicked).grid(row=1, column=6)
-        ttk.Button(form, text="저장", command=self.on_save_clicked).grid(row=1, column=7)
-        ttk.Button(form, text="불러오기", command=self.on_load_clicked).grid(row=1, column=8)
+
+        self.btn_cancel = ttk.Button(form, text="취소", command=self.on_cancel_edit)
+        self.btn_cancel.grid(row=1, column=5, padx=5)
+        # 편집 모드가 아닐 때는 버튼을 숨긴다
+        self.btn_cancel.grid_forget()
+
+        ttk.Button(form, text="삭제", command=self.on_remove_asset).grid(row=1, column=6, padx=5)
+        ttk.Button(form, text="갱신", command=self.on_refresh_clicked).grid(row=1, column=7)
+        ttk.Button(form, text="저장", command=self.on_save_clicked).grid(row=1, column=8)
+        ttk.Button(form, text="불러오기", command=self.on_load_clicked).grid(row=1, column=9)
 
         rebalance_frame = ttk.Frame(frame)
         rebalance_frame.pack(fill=tk.X)
@@ -64,6 +74,16 @@ class MainWindow(tk.Tk):
     def _clear_table(self) -> None:
         for row in self.table.get_children():
             self.table.delete(row)
+
+    def _clear_entries(self) -> None:
+        """모든 입력 필드를 초기화한다."""
+        for entry in (
+            self.entry_ticker,
+            self.entry_weight,
+            self.entry_shares,
+            self.entry_cost,
+        ):
+            entry.delete(0, tk.END)
 
     def update_ui(self) -> None:
         self._clear_table()
@@ -119,13 +139,21 @@ class MainWindow(tk.Tk):
             self.editing_ticker = None
             self.entry_ticker.config(state="normal")
             self.btn_add.config(text="추가")
+            self.btn_cancel.grid_forget()
         else:
             asset = Asset(ticker=ticker, weight=weight, shares=shares, avg_cost=cost)
             self.app.portfolio.add_asset(asset)
 
-        for entry in (self.entry_ticker, self.entry_weight, self.entry_shares, self.entry_cost):
-            entry.delete(0, tk.END)
+        self._clear_entries()
         self.update_ui()
+
+    def on_cancel_edit(self) -> None:
+        """편집 모드를 취소하고 입력 필드를 초기화한다."""
+        self.editing_ticker = None
+        self.entry_ticker.config(state="normal")
+        self.btn_add.config(text="추가")
+        self.btn_cancel.grid_forget()
+        self._clear_entries()
 
     def on_edit_asset(self, event) -> None:
         item_id = self.table.identify_row(event.y)
@@ -147,6 +175,7 @@ class MainWindow(tk.Tk):
         self.entry_cost.delete(0, tk.END)
         self.entry_cost.insert(0, str(asset.avg_cost))
         self.btn_add.config(text="수정")
+        self.btn_cancel.grid(row=1, column=5, padx=5)
 
     def on_remove_asset(self) -> None:
         selected = self.table.selection()
@@ -159,8 +188,8 @@ class MainWindow(tk.Tk):
             self.editing_ticker = None
             self.entry_ticker.config(state="normal")
             self.btn_add.config(text="추가")
-            for entry in (self.entry_ticker, self.entry_weight, self.entry_shares, self.entry_cost):
-                entry.delete(0, tk.END)
+            self.btn_cancel.grid_forget()
+            self._clear_entries()
         self.update_ui()
 
     def on_load_clicked(self) -> None:
@@ -170,3 +199,14 @@ class MainWindow(tk.Tk):
     def on_close(self) -> None:
         self.app.save_state()
         self.destroy()
+
+    def _on_table_configure(self, event) -> None:
+        """창 크기에 맞춰 컬럼 너비를 조정한다."""
+        if event.width <= 1:
+            return
+        total_cols = len(self.table["columns"])
+        if total_cols == 0:
+            return
+        col_width = max(event.width // total_cols, 20)
+        for col in self.table["columns"]:
+            self.table.column(col, width=col_width)
