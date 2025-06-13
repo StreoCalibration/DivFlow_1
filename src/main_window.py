@@ -61,18 +61,21 @@ class MainWindow(tk.Tk):
         self.entry_shares.grid(row=1, column=2)
         self.entry_cost.grid(row=1, column=3)
 
-        # 버튼 전용 프레임을 만들어 입금액 입력 영역과 티커 입력 영역 사이에 배치한다
+        # "평균 단가" 입력 필드 오른쪽에 추가/수정/취소 버튼을 배치한다
+        self.btn_add = ttk.Button(form, text="추가", command=self.on_add_asset)
+        self.btn_add.grid(row=1, column=4, padx=5)
+
+        self.btn_update = ttk.Button(form, text="수정", command=self.on_update_asset)
+        self.btn_update.grid(row=1, column=5, padx=5)
+        self.btn_update.grid_remove()
+
+        self.btn_cancel = ttk.Button(form, text="취소", command=self.on_cancel_edit)
+        self.btn_cancel.grid(row=1, column=6, padx=5)
+        self.btn_cancel.grid_remove()
+
+        # 아래쪽에 기타 동작 버튼들을 배치한다
         button_row = ttk.Frame(frame)
         button_row.pack(fill=tk.X, pady=5)
-
-        self.btn_add = ttk.Button(button_row, text="추가", command=self.on_add_or_update)
-        self.btn_add.pack(side=tk.LEFT, padx=5)
-
-        self.btn_cancel = ttk.Button(button_row, text="취소", command=self.on_cancel_edit)
-        self.btn_cancel.pack(side=tk.LEFT, padx=5)
-        # 편집 모드가 아닐 때는 버튼을 숨긴다
-        self.btn_cancel.pack_forget()
-
         ttk.Button(button_row, text="삭제", command=self.on_remove_asset).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_row, text="갱신", command=self.on_refresh_clicked).pack(side=tk.LEFT, padx=5)
         ttk.Button(button_row, text="저장", command=self.on_save_clicked).pack(side=tk.LEFT, padx=5)
@@ -137,7 +140,8 @@ class MainWindow(tk.Tk):
         msg = "\n".join(f"{t}: {n}주" for t, n in allocs.items())
         messagebox.showinfo("리밸런스 결과", msg)
 
-    def on_add_or_update(self) -> None:
+    def on_add_asset(self) -> None:
+        """새 자산을 포트폴리오에 추가한다."""
         try:
             ticker = self.entry_ticker.get().upper()
             weight = float(self.entry_weight.get()) / 100
@@ -147,26 +151,40 @@ class MainWindow(tk.Tk):
             messagebox.showerror("오류", "입력 값이 잘못되었습니다")
             return
 
-        if self.editing_ticker:
-            asset = self.app.portfolio.assets.get(self.editing_ticker)
-            if not asset:
-                messagebox.showerror("오류", "수정할 자산을 찾을 수 없습니다")
-                return
-            asset.weight = weight
-            asset.shares = shares
-            asset.avg_cost = cost
-            if ticker != self.editing_ticker:
-                self.app.portfolio.remove_asset(self.editing_ticker)
-                asset.ticker = ticker
-                self.app.portfolio.add_asset(asset)
-            self.editing_ticker = None
-            self.entry_ticker.config(state="normal")
-            self.btn_add.config(text="추가")
-            self.btn_cancel.grid_remove()
-        else:
-            asset = Asset(ticker=ticker, weight=weight, shares=shares, avg_cost=cost)
-            self.app.portfolio.add_asset(asset)
+        asset = Asset(ticker=ticker, weight=weight, shares=shares, avg_cost=cost)
+        self.app.portfolio.add_asset(asset)
+        self._clear_entries()
+        self.update_ui()
 
+    def on_update_asset(self) -> None:
+        """선택된 자산의 정보를 수정한다."""
+        if not self.editing_ticker:
+            return
+        try:
+            ticker = self.entry_ticker.get().upper()
+            weight = float(self.entry_weight.get()) / 100
+            shares = float(self.entry_shares.get())
+            cost = float(self.entry_cost.get())
+        except ValueError:
+            messagebox.showerror("오류", "입력 값이 잘못되었습니다")
+            return
+
+        asset = self.app.portfolio.assets.get(self.editing_ticker)
+        if not asset:
+            messagebox.showerror("오류", "수정할 자산을 찾을 수 없습니다")
+            return
+        asset.weight = weight
+        asset.shares = shares
+        asset.avg_cost = cost
+        if ticker != self.editing_ticker:
+            self.app.portfolio.remove_asset(self.editing_ticker)
+            asset.ticker = ticker
+            self.app.portfolio.add_asset(asset)
+        self.editing_ticker = None
+        self.entry_ticker.config(state="normal")
+        self.btn_update.grid_remove()
+        self.btn_cancel.grid_remove()
+        self.btn_add.grid()
         self._clear_entries()
         self.update_ui()
 
@@ -174,8 +192,9 @@ class MainWindow(tk.Tk):
         """편집 모드를 취소하고 입력 필드를 초기화한다."""
         self.editing_ticker = None
         self.entry_ticker.config(state="normal")
-        self.btn_add.config(text="추가")
+        self.btn_update.grid_remove()
         self.btn_cancel.grid_remove()
+        self.btn_add.grid()
         self._clear_entries()
 
     def on_edit_asset(self, event) -> None:
@@ -197,7 +216,8 @@ class MainWindow(tk.Tk):
         self.entry_shares.insert(0, str(asset.shares))
         self.entry_cost.delete(0, tk.END)
         self.entry_cost.insert(0, str(asset.avg_cost))
-        self.btn_add.config(text="수정")
+        self.btn_add.grid_remove()
+        self.btn_update.grid()
         self.btn_cancel.grid()
 
     def on_remove_asset(self) -> None:
@@ -210,8 +230,9 @@ class MainWindow(tk.Tk):
         if self.editing_ticker == ticker:
             self.editing_ticker = None
             self.entry_ticker.config(state="normal")
-            self.btn_add.config(text="추가")
+            self.btn_update.grid_remove()
             self.btn_cancel.grid_remove()
+            self.btn_add.grid()
             self._clear_entries()
         self.update_ui()
 
