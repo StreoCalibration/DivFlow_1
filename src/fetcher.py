@@ -14,3 +14,7 @@ class PriceFetcher:
         prices = {t: self.fetch_price(t) for t in tickers}
         dividends = {t: self.fetch_dividend(t) for t in tickers}
         return prices, dividends
+
+    def fetch_exchange_rate(self) -> float:
+        """원/달러 환율을 임의의 값으로 반환한다."""
+        return round(random.uniform(1000, 1500), 2)

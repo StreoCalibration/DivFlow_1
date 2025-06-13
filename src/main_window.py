@@ -23,7 +23,16 @@ class MainWindow(tk.Tk):
         frame = ttk.Frame(self)
         frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        columns = ("티커", "비중", "주수", "평균 단가", "현재가", "평가금액")
+        columns = (
+            "티커",
+            "비중",
+            "주수",
+            "평균 단가",
+            "현재가(외화)",
+            "현재가(원화)",
+            "평가금액(외화)",
+            "평가금액(원화)",
+        )
         self.table = ttk.Treeview(frame, columns=columns, show="headings")
         for col in columns:
             self.table.heading(col, text=col)
@@ -55,7 +64,7 @@ class MainWindow(tk.Tk):
         self.btn_add.grid(row=1, column=4, padx=5)
 
         self.btn_cancel = ttk.Button(form, text="취소", command=self.on_cancel_edit)
-        self.btn_cancel.grid(row=1, column=5, padx=5)
+        self.btn_cancel.grid(row=2, column=4, padx=5)
         # 편집 모드가 아닐 때는 버튼을 숨긴다
         self.btn_cancel.grid_forget()
 
@@ -87,15 +96,24 @@ class MainWindow(tk.Tk):
 
     def update_ui(self) -> None:
         self._clear_table()
+        rate = self.app.exchange_rate
         for asset in self.app.portfolio.assets.values():
-            self.table.insert("", tk.END, values=(
-                asset.ticker,
-                f"{asset.weight*100:.1f}%",
-                asset.shares,
-                f"{asset.avg_cost:.2f}",
-                f"{asset.current_price:.2f}",
-                f"{asset.get_value():.2f}",
-            ))
+            price = asset.current_price
+            value = asset.get_value()
+            self.table.insert(
+                "",
+                tk.END,
+                values=(
+                    asset.ticker,
+                    f"{asset.weight*100:.1f}%",
+                    asset.shares,
+                    f"{asset.avg_cost:.2f}",
+                    f"{price:.2f}",
+                    f"{price*rate:.2f}",
+                    f"{value:.2f}",
+                    f"{value*rate:.2f}",
+                ),
+            )
 
     def on_refresh_clicked(self) -> None:
         self.app.refresh_data()
@@ -175,7 +193,7 @@ class MainWindow(tk.Tk):
         self.entry_cost.delete(0, tk.END)
         self.entry_cost.insert(0, str(asset.avg_cost))
         self.btn_add.config(text="수정")
-        self.btn_cancel.grid(row=1, column=5, padx=5)
+        self.btn_cancel.grid(row=2, column=4, padx=5)
 
     def on_remove_asset(self) -> None:
         selected = self.table.selection()

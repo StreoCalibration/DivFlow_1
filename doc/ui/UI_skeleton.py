@@ -31,7 +31,16 @@ class PortfolioAppUI(tk.Tk):
         # 자산 테이블
         table_frame = tk.Frame(main_frame)
         table_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        columns = ("티커", "목표비중(%)", "보유수량", "매입단가", "현재가", "손익(%)", "연간배당수익률(%)")
+        columns = (
+            "티커",
+            "목표비중(%)",
+            "보유수량",
+            "매입단가",
+            "현재가(외화)",
+            "현재가(원화)",
+            "평가금액(외화)",
+            "평가금액(원화)",
+        )
         tree = ttk.Treeview(table_frame, columns=columns, show="headings")
         for col in columns:
             tree.heading(col, text=col)
