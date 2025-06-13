@@ -7,8 +7,10 @@ from .portfolio import Portfolio
 
 
 class PortfolioStorage:
-    def __init__(self, path: str | Path = "portfolio.json") -> None:
+    def __init__(self, path: str | Path = Path("data") / "portfolio.json") -> None:
         self.path = Path(path)
+        # Ensure the directory for the storage file exists
+        self.path.parent.mkdir(parents=True, exist_ok=True)
 
     def save(self, portfolio: Portfolio) -> None:
         data = [asset.__dict__ for asset in portfolio.assets.values()]
