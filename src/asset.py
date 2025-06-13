@@ -6,17 +6,17 @@ class Asset:
     weight: float
     shares: float
     avg_cost: float
-    current_price: float = 0.0
+    close_price: float = 0.0
     dividend_yield: float = 0.0
 
     def get_value(self) -> float:
-        return self.shares * self.current_price
+        return self.shares * self.close_price
 
     def get_gain(self) -> float:
-        return (self.current_price - self.avg_cost) * self.shares
+        return (self.close_price - self.avg_cost) * self.shares
 
     def get_dividend_amount(self) -> float:
-        return self.current_price * self.shares * self.dividend_yield
+        return self.close_price * self.shares * self.dividend_yield
 
     def get_weight_percentage(self, total: float) -> float:
         if total == 0:
