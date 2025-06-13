@@ -57,7 +57,7 @@ class PortfolioAppUI(tk.Tk):
             tk.Entry(row).pack(side=tk.RIGHT, fill=tk.X, expand=True)
             row.pack(fill=tk.X, pady=5)
         btn_frame = tk.Frame(input_frame)
-        for btext in ["추가", "업데이트", "리밸런싱"]:
+        for btext in ["추가", "취소", "업데이트", "리밸런싱"]:
             tk.Button(btn_frame, text=btext).pack(side=tk.LEFT, padx=5, pady=10)
         btn_frame.pack()
 
