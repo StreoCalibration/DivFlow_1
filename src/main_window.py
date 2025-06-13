@@ -76,7 +76,7 @@ class MainWindow(tk.Tk):
 
         rebalance_frame = ttk.Frame(frame)
         rebalance_frame.pack(fill=tk.X)
-        ttk.Label(rebalance_frame, text="입금액").grid(row=0, column=0)
+        ttk.Label(rebalance_frame, text="입금액(원화)").grid(row=0, column=0)
         self.entry_deposit = ttk.Entry(rebalance_frame, width=10)
         self.entry_deposit.grid(row=0, column=1)
         ttk.Button(rebalance_frame, text="리밸런스", command=self.on_add_fund_clicked).grid(row=0, column=2, padx=5)
