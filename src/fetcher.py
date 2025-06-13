@@ -12,6 +12,7 @@ class PriceFetcher:
     def __init__(self) -> None:
         # 한 세션 내에서 동일한 시세를 유지하기 위해 캐시를 사용한다.
         self._price_cache: Dict[str, float] = {}
+        self._price_timestamp: Dict[str, float] = {}
         self._dividend_cache: Dict[str, float] = {}
         self._exchange_rate: Optional[float] = None
         self._rate_timestamp: float = 0.0
@@ -56,7 +57,11 @@ class PriceFetcher:
 
     def fetch_close_price(self, ticker: str) -> float:
         """종가를 외부 API에서 조회한다."""
-        if ticker not in self._price_cache:
+        now = time.time()
+        if (
+            ticker not in self._price_cache
+            or now - self._price_timestamp.get(ticker, 0) > 3600
+        ):
             quote = self._fetch_yahoo_quote(ticker)
             prev_close = None
             if quote and "regularMarketPreviousClose" in quote:
@@ -72,6 +77,7 @@ class PriceFetcher:
             else:
                 print(f"시세 조회 실패({ticker})")
                 self._price_cache[ticker] = 0.0
+            self._price_timestamp[ticker] = now
         return self._price_cache[ticker]
 
     def fetch_dividend(self, ticker: str) -> float:
@@ -92,7 +98,7 @@ class PriceFetcher:
     def fetch_exchange_rate(self) -> float:
         """원/달러 환율을 외부 API에서 조회한다."""
         now = time.time()
-        if self._exchange_rate is None or now - self._rate_timestamp > 600:
+        if self._exchange_rate is None or now - self._rate_timestamp > 3600:
             url = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=USDKRW=X"
             try:
                 with urllib.request.urlopen(url, timeout=5) as resp:
