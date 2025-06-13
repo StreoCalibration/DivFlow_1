@@ -17,12 +17,12 @@
   - assets: List[Asset]  
   - 메서드: addAsset(), removeAsset(), getTotalValue(), getAllocationRatios(), updatePrices(), calculateStats()
 
-- **Asset**  
-  - ticker, weight, shares, avgCost, currentPrice, dividendYield  
+- **Asset**
+  - ticker, weight, shares, avgCost, closePrice, dividendYield
   - 메서드: getValue(), getGain(), getDividendAmount(), getWeightPercentage(total)
 
-- **PriceFetcher**  
-  - 메서드: fetchPrice(), fetchDividend(), fetchAll()
+- **PriceFetcher**
+  - 메서드: fetchClosePrice(), fetchDividend(), fetchAll()
 
 - **PortfolioStorage**  
   - 메서드: save(), load()

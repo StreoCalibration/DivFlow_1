@@ -25,7 +25,7 @@ classDiagram
         -weight: float
         -shares: float
         -avgCost: float
-        -currentPrice: float
+        -closePrice: float
         -dividendYield: float
         +getValue()
         +getGain()
@@ -33,7 +33,7 @@ classDiagram
         +getWeightPercentage(total)
     }
     class PriceFetcher {
-        +fetchPrice(ticker)
+        +fetchClosePrice(ticker)
         +fetchDividend(ticker)
         +fetchAll(tickers)
     }
