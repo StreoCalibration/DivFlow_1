@@ -67,6 +67,10 @@ class PortfolioApp:
         loaded = self.storage.load()
         if loaded:
             self.portfolio = loaded
+            # 기존 저장된 시세 정보를 Fetcher 캐시에 반영한다
+            prices = {t: a.close_price for t, a in loaded.assets.items()}
+            dividends = {t: a.dividend_yield for t, a in loaded.assets.items()}
+            self.price_fetcher.load_cache(prices, dividends)
         if self.ui:
             self.ui.update_ui()
 

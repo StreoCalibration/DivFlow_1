@@ -32,3 +32,12 @@ class PriceFetcher:
         if self._exchange_rate is None:
             self._exchange_rate = round(random.uniform(1000, 1500), 2)
         return self._exchange_rate
+
+    def load_cache(
+        self,
+        prices: Dict[str, float],
+        dividends: Dict[str, float],
+    ) -> None:
+        """기존 시세 데이터를 캐시에 미리 로드한다."""
+        self._price_cache.update(prices)
+        self._dividend_cache.update(dividends)
