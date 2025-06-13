@@ -5,6 +5,49 @@ from .asset import Asset
 from .portfolio import Portfolio, PortfolioApp
 
 
+class EditDialog(tk.Toplevel):
+    def __init__(self, parent: tk.Widget, asset: Asset):
+        super().__init__(parent)
+        self.asset = asset
+        self.result = None
+        self.title(f"{asset.ticker} 수정")
+
+        ttk.Label(self, text="비중(%)").grid(row=0, column=0, padx=5, pady=5)
+        ttk.Label(self, text="주수").grid(row=1, column=0, padx=5, pady=5)
+        ttk.Label(self, text="평균 단가").grid(row=2, column=0, padx=5, pady=5)
+
+        self.entry_weight = ttk.Entry(self, width=10)
+        self.entry_weight.insert(0, f"{asset.weight*100:.2f}")
+        self.entry_weight.grid(row=0, column=1, padx=5, pady=5)
+
+        self.entry_shares = ttk.Entry(self, width=10)
+        self.entry_shares.insert(0, str(asset.shares))
+        self.entry_shares.grid(row=1, column=1, padx=5, pady=5)
+
+        self.entry_cost = ttk.Entry(self, width=10)
+        self.entry_cost.insert(0, str(asset.avg_cost))
+        self.entry_cost.grid(row=2, column=1, padx=5, pady=5)
+
+        btn_frame = ttk.Frame(self)
+        btn_frame.grid(row=3, column=0, columnspan=2, pady=5)
+        ttk.Button(btn_frame, text="확인", command=self.on_ok).pack(side=tk.LEFT, padx=5)
+        ttk.Button(btn_frame, text="취소", command=self.destroy).pack(side=tk.LEFT)
+
+        self.grab_set()
+        self.protocol("WM_DELETE_WINDOW", self.destroy)
+
+    def on_ok(self) -> None:
+        try:
+            weight = float(self.entry_weight.get()) / 100
+            shares = float(self.entry_shares.get())
+            cost = float(self.entry_cost.get())
+        except ValueError:
+            messagebox.showerror("오류", "값이 잘못되었습니다")
+            return
+        self.result = weight, shares, cost
+        self.destroy()
+
+
 class MainWindow(tk.Tk):
     def __init__(self, app: PortfolioApp):
         super().__init__()
@@ -27,6 +70,7 @@ class MainWindow(tk.Tk):
         for col in columns:
             self.table.heading(col, text=col)
         self.table.pack(fill=tk.BOTH, expand=True)
+        self.table.bind("<Double-1>", self.on_edit_asset)
 
         form = ttk.Frame(frame)
         form.pack(fill=tk.X, pady=5)
@@ -103,6 +147,24 @@ class MainWindow(tk.Tk):
         asset = Asset(ticker=ticker, weight=weight, shares=shares, avg_cost=cost)
         self.app.portfolio.add_asset(asset)
         self.update_ui()
+
+    def on_edit_asset(self, event) -> None:
+        item_id = self.table.identify_row(event.y)
+        if not item_id:
+            return
+        ticker = self.table.item(item_id)["values"][0]
+        asset = self.app.portfolio.assets.get(ticker)
+        if asset is None:
+            return
+
+        dialog = EditDialog(self, asset)
+        self.wait_window(dialog)
+        if dialog.result:
+            weight, shares, cost = dialog.result
+            asset.weight = weight
+            asset.shares = shares
+            asset.avg_cost = cost
+            self.update_ui()
 
     def on_remove_asset(self) -> None:
         selected = self.table.selection()
