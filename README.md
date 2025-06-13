@@ -30,3 +30,5 @@ python -m src
 포트폴리오 데이터는 저장 시 `data/portfolio.json` 파일로 관리됩니다.
 애플리케이션을 처음 실행하면 `data` 폴더가 자동으로 생성됩니다.
 모든 UI 텍스트는 한국어로 제공됩니다.
+시세 조회 기능(`PriceFetcher`)은 Yahoo Finance API를 사용하며 인터넷이 차단된
+환경에서는 임의의 데이터가 반환됩니다.
