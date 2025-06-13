@@ -1,5 +1,4 @@
 import json
-import random
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -24,11 +23,13 @@ class PriceFetcher:
         try:
             with urllib.request.urlopen(url, timeout=5) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
-        except (urllib.error.URLError, json.JSONDecodeError):
+        except (urllib.error.URLError, json.JSONDecodeError) as e:
+            print(f"API 요청 실패({ticker}): {e}")
             return None
 
         result = data.get("quoteResponse", {}).get("result")
         if not result:
+            print(f"API 응답 오류({ticker}): result 없음")
             return None
         return result[0]
 
@@ -41,7 +42,8 @@ class PriceFetcher:
             elif quote and "regularMarketPrice" in quote:
                 self._price_cache[ticker] = float(quote["regularMarketPrice"])
             else:
-                self._price_cache[ticker] = round(random.uniform(10, 500), 2)
+                print(f"시세 조회 실패({ticker})")
+                self._price_cache[ticker] = 0.0
         return self._price_cache[ticker]
 
     def fetch_dividend(self, ticker: str) -> float:
@@ -50,6 +52,7 @@ class PriceFetcher:
             if quote and "trailingAnnualDividendYield" in quote and quote["trailingAnnualDividendYield"] is not None:
                 self._dividend_cache[ticker] = float(quote["trailingAnnualDividendYield"])
             else:
+                print(f"배당 수익률 조회 실패({ticker})")
                 self._dividend_cache[ticker] = 0.0
         return self._dividend_cache[ticker]
 
@@ -68,10 +71,12 @@ class PriceFetcher:
                 result = data.get("quoteResponse", {}).get("result")
                 if result:
                     self._exchange_rate = float(result[0].get("regularMarketPrice", 0.0))
-            except (urllib.error.URLError, json.JSONDecodeError):
-                self._exchange_rate = None
+            except (urllib.error.URLError, json.JSONDecodeError) as e:
+                print(f"환율 조회 실패: {e}")
+                self._exchange_rate = 0.0
         if self._exchange_rate is None:
-            self._exchange_rate = round(random.uniform(1000, 1500), 2)
+            print("환율 조회 실패")
+            self._exchange_rate = 0.0
         return self._exchange_rate
 
     def load_cache(
