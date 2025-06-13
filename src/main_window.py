@@ -5,49 +5,6 @@ from .asset import Asset
 from .portfolio import Portfolio, PortfolioApp
 
 
-class EditDialog(tk.Toplevel):
-    def __init__(self, parent: tk.Widget, asset: Asset):
-        super().__init__(parent)
-        self.asset = asset
-        self.result = None
-        self.title(f"{asset.ticker} 수정")
-
-        ttk.Label(self, text="비중(%)").grid(row=0, column=0, padx=5, pady=5)
-        ttk.Label(self, text="주수").grid(row=1, column=0, padx=5, pady=5)
-        ttk.Label(self, text="평균 단가").grid(row=2, column=0, padx=5, pady=5)
-
-        self.entry_weight = ttk.Entry(self, width=10)
-        self.entry_weight.insert(0, f"{asset.weight*100:.2f}")
-        self.entry_weight.grid(row=0, column=1, padx=5, pady=5)
-
-        self.entry_shares = ttk.Entry(self, width=10)
-        self.entry_shares.insert(0, str(asset.shares))
-        self.entry_shares.grid(row=1, column=1, padx=5, pady=5)
-
-        self.entry_cost = ttk.Entry(self, width=10)
-        self.entry_cost.insert(0, str(asset.avg_cost))
-        self.entry_cost.grid(row=2, column=1, padx=5, pady=5)
-
-        btn_frame = ttk.Frame(self)
-        btn_frame.grid(row=3, column=0, columnspan=2, pady=5)
-        ttk.Button(btn_frame, text="확인", command=self.on_ok).pack(side=tk.LEFT, padx=5)
-        ttk.Button(btn_frame, text="취소", command=self.destroy).pack(side=tk.LEFT)
-
-        self.grab_set()
-        self.protocol("WM_DELETE_WINDOW", self.destroy)
-
-    def on_ok(self) -> None:
-        try:
-            weight = float(self.entry_weight.get()) / 100
-            shares = float(self.entry_shares.get())
-            cost = float(self.entry_cost.get())
-        except ValueError:
-            messagebox.showerror("오류", "값이 잘못되었습니다")
-            return
-        self.result = weight, shares, cost
-        self.destroy()
-
-
 class MainWindow(tk.Tk):
     def __init__(self, app: PortfolioApp):
         super().__init__()
@@ -58,6 +15,7 @@ class MainWindow(tk.Tk):
 
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
+        self.editing_ticker = None
         self._build_widgets()
         self.update_ui()
 
@@ -89,7 +47,8 @@ class MainWindow(tk.Tk):
         self.entry_shares.grid(row=1, column=2)
         self.entry_cost.grid(row=1, column=3)
 
-        ttk.Button(form, text="추가", command=self.on_add_asset).grid(row=1, column=4, padx=5)
+        self.btn_add = ttk.Button(form, text="추가", command=self.on_add_or_update)
+        self.btn_add.grid(row=1, column=4, padx=5)
         ttk.Button(form, text="삭제", command=self.on_remove_asset).grid(row=1, column=5, padx=5)
         ttk.Button(form, text="갱신", command=self.on_refresh_clicked).grid(row=1, column=6)
         ttk.Button(form, text="저장", command=self.on_save_clicked).grid(row=1, column=7)
@@ -135,7 +94,7 @@ class MainWindow(tk.Tk):
         msg = "\n".join(f"{t}: {n}주" for t, n in allocs.items())
         messagebox.showinfo("리밸런스 결과", msg)
 
-    def on_add_asset(self) -> None:
+    def on_add_or_update(self) -> None:
         try:
             ticker = self.entry_ticker.get().upper()
             weight = float(self.entry_weight.get()) / 100
@@ -144,8 +103,28 @@ class MainWindow(tk.Tk):
         except ValueError:
             messagebox.showerror("오류", "입력 값이 잘못되었습니다")
             return
-        asset = Asset(ticker=ticker, weight=weight, shares=shares, avg_cost=cost)
-        self.app.portfolio.add_asset(asset)
+
+        if self.editing_ticker:
+            asset = self.app.portfolio.assets.get(self.editing_ticker)
+            if not asset:
+                messagebox.showerror("오류", "수정할 자산을 찾을 수 없습니다")
+                return
+            asset.weight = weight
+            asset.shares = shares
+            asset.avg_cost = cost
+            if ticker != self.editing_ticker:
+                self.app.portfolio.remove_asset(self.editing_ticker)
+                asset.ticker = ticker
+                self.app.portfolio.add_asset(asset)
+            self.editing_ticker = None
+            self.entry_ticker.config(state="normal")
+            self.btn_add.config(text="추가")
+        else:
+            asset = Asset(ticker=ticker, weight=weight, shares=shares, avg_cost=cost)
+            self.app.portfolio.add_asset(asset)
+
+        for entry in (self.entry_ticker, self.entry_weight, self.entry_shares, self.entry_cost):
+            entry.delete(0, tk.END)
         self.update_ui()
 
     def on_edit_asset(self, event) -> None:
@@ -157,14 +136,17 @@ class MainWindow(tk.Tk):
         if asset is None:
             return
 
-        dialog = EditDialog(self, asset)
-        self.wait_window(dialog)
-        if dialog.result:
-            weight, shares, cost = dialog.result
-            asset.weight = weight
-            asset.shares = shares
-            asset.avg_cost = cost
-            self.update_ui()
+        self.editing_ticker = ticker
+        self.entry_ticker.delete(0, tk.END)
+        self.entry_ticker.insert(0, asset.ticker)
+        self.entry_ticker.config(state="disabled")
+        self.entry_weight.delete(0, tk.END)
+        self.entry_weight.insert(0, f"{asset.weight*100:.2f}")
+        self.entry_shares.delete(0, tk.END)
+        self.entry_shares.insert(0, str(asset.shares))
+        self.entry_cost.delete(0, tk.END)
+        self.entry_cost.insert(0, str(asset.avg_cost))
+        self.btn_add.config(text="수정")
 
     def on_remove_asset(self) -> None:
         selected = self.table.selection()
@@ -173,6 +155,12 @@ class MainWindow(tk.Tk):
             return
         ticker = self.table.item(selected[0])["values"][0]
         self.app.portfolio.remove_asset(ticker)
+        if self.editing_ticker == ticker:
+            self.editing_ticker = None
+            self.entry_ticker.config(state="normal")
+            self.btn_add.config(text="추가")
+            for entry in (self.entry_ticker, self.entry_weight, self.entry_shares, self.entry_cost):
+                entry.delete(0, tk.END)
         self.update_ui()
 
     def on_load_clicked(self) -> None:
