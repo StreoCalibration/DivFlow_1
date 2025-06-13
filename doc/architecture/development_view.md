@@ -8,7 +8,7 @@
 │   ├── portfolio.py       # PortfolioApp, Portfolio
 │   ├── asset.py           # Asset
 │   ├── fetcher.py         # PriceFetcher
-│   ├── storage.py         # PortfolioStorage
+│   ├── storage.py         # PortfolioStorage (포트폴리오와 환율 저장)
 │   └── main_window.py     # MainWindow
 ```
 
