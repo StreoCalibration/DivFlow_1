@@ -33,12 +33,38 @@ class PriceFetcher:
             return None
         return result[0]
 
+    def _fetch_jp_quote(self, ticker: str) -> Optional[dict]:
+        """야후 파이낸스 일본판에서 쿼트 정보를 가져온다."""
+        url = (
+            "https://query1.finance.yahoo.co.jp/v7/finance/quote?symbols="
+            f"{urllib.parse.quote(ticker)}"
+        )
+        try:
+            with urllib.request.urlopen(url, timeout=5) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except (urllib.error.URLError, json.JSONDecodeError) as e:
+            print(f"JP API 요청 실패({ticker}): {e}")
+            return None
+
+        result = data.get("quoteResponse", {}).get("result")
+        if not result:
+            print(f"JP API 응답 오류({ticker}): result 없음")
+            return None
+        return result[0]
+
     def fetch_close_price(self, ticker: str) -> float:
         """종가를 외부 API에서 조회한다."""
         if ticker not in self._price_cache:
             quote = self._fetch_yahoo_quote(ticker)
+            prev_close = None
             if quote and "regularMarketPreviousClose" in quote:
-                self._price_cache[ticker] = float(quote["regularMarketPreviousClose"])
+                prev_close = quote["regularMarketPreviousClose"]
+            if prev_close is None:
+                jp_quote = self._fetch_jp_quote(ticker)
+                if jp_quote and "regularMarketPreviousClose" in jp_quote:
+                    prev_close = jp_quote["regularMarketPreviousClose"]
+            if prev_close is not None:
+                self._price_cache[ticker] = float(prev_close)
             elif quote and "regularMarketPrice" in quote:
                 self._price_cache[ticker] = float(quote["regularMarketPrice"])
             else:
