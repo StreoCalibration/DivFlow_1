@@ -108,11 +108,11 @@ class MainWindow(tk.Tk):
                     asset.ticker,
                     f"{asset.weight*100:.1f}%",
                     asset.shares,
-                    f"{asset.avg_cost:.2f}",
-                    f"{price:.2f}",
-                    f"{price*rate:.0f}",
-                    f"{value:.2f}",
-                    f"{value*rate:.0f}",
+                    f"{asset.avg_cost:,.2f}",
+                    f"{price:,.2f}",
+                    f"{price*rate:,.0f}",
+                    f"{value:,.2f}",
+                    f"{value*rate:,.0f}",
                 ),
             )
 
