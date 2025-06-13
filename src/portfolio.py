@@ -24,7 +24,7 @@ class Portfolio:
     def update_prices(self, prices: Dict[str, float], dividends: Dict[str, float] | None = None) -> None:
         for ticker, price in prices.items():
             if ticker in self.assets:
-                self.assets[ticker].current_price = price
+                self.assets[ticker].close_price = price
         if dividends:
             for ticker, dy in dividends.items():
                 if ticker in self.assets:
@@ -76,8 +76,8 @@ class PortfolioApp:
         for asset in self.portfolio.assets.values():
             desired_value = total * asset.weight
             to_buy_value = max(desired_value - asset.get_value(), 0)
-            if asset.current_price > 0:
-                allocations[asset.ticker] = int(to_buy_value / asset.current_price)
+            if asset.close_price > 0:
+                allocations[asset.ticker] = int(to_buy_value / asset.close_price)
             else:
                 allocations[asset.ticker] = 0
         return allocations

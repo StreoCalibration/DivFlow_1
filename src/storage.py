@@ -24,6 +24,8 @@ class PortfolioStorage:
             data = json.load(fp)
         portfolio = Portfolio()
         for item in data:
+            if "current_price" in item and "close_price" not in item:
+                item["close_price"] = item.pop("current_price")
             asset = Asset(**item)
             portfolio.add_asset(asset)
         return portfolio

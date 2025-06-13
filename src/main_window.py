@@ -28,8 +28,8 @@ class MainWindow(tk.Tk):
             "비중",
             "주수",
             "평균 단가",
-            "현재가(외화)",
-            "현재가(원화)",
+            "전일종가(외화)",
+            "전일종가(원화)",
             "평가금액(외화)",
             "평가금액(원화)",
         )
@@ -99,7 +99,7 @@ class MainWindow(tk.Tk):
         self._clear_table()
         rate = self.app.exchange_rate
         for asset in self.app.portfolio.assets.values():
-            price = asset.current_price
+            price = asset.close_price
             value = asset.get_value()
             self.table.insert(
                 "",
