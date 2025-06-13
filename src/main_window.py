@@ -61,18 +61,22 @@ class MainWindow(tk.Tk):
         self.entry_shares.grid(row=1, column=2)
         self.entry_cost.grid(row=1, column=3)
 
-        self.btn_add = ttk.Button(form, text="추가", command=self.on_add_or_update)
-        self.btn_add.grid(row=1, column=4, padx=5)
+        # 버튼 전용 프레임을 만들어 입금액 입력 영역과 티커 입력 영역 사이에 배치한다
+        button_row = ttk.Frame(frame)
+        button_row.pack(fill=tk.X, pady=5)
 
-        self.btn_cancel = ttk.Button(form, text="취소", command=self.on_cancel_edit)
-        self.btn_cancel.grid(row=1, column=5, padx=5)
+        self.btn_add = ttk.Button(button_row, text="추가", command=self.on_add_or_update)
+        self.btn_add.pack(side=tk.LEFT, padx=5)
+
+        self.btn_cancel = ttk.Button(button_row, text="취소", command=self.on_cancel_edit)
+        self.btn_cancel.pack(side=tk.LEFT, padx=5)
         # 편집 모드가 아닐 때는 버튼을 숨긴다
-        self.btn_cancel.grid_remove()
+        self.btn_cancel.pack_forget()
 
-        ttk.Button(form, text="삭제", command=self.on_remove_asset).grid(row=1, column=6, padx=5)
-        ttk.Button(form, text="갱신", command=self.on_refresh_clicked).grid(row=1, column=7)
-        ttk.Button(form, text="저장", command=self.on_save_clicked).grid(row=1, column=8)
-        ttk.Button(form, text="불러오기", command=self.on_load_clicked).grid(row=1, column=9)
+        ttk.Button(button_row, text="삭제", command=self.on_remove_asset).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_row, text="갱신", command=self.on_refresh_clicked).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_row, text="저장", command=self.on_save_clicked).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_row, text="불러오기", command=self.on_load_clicked).pack(side=tk.LEFT, padx=5)
 
         rebalance_frame = ttk.Frame(frame)
         rebalance_frame.pack(fill=tk.X)
