@@ -47,6 +47,7 @@ class PortfolioApp:
         self.price_fetcher = price_fetcher
         self.storage = storage
         self.ui = None
+        self.exchange_rate = 1.0
 
     def set_ui(self, ui: "MainWindow") -> None:
         self.ui = ui
@@ -54,6 +55,7 @@ class PortfolioApp:
     def refresh_data(self) -> None:
         tickers = list(self.portfolio.assets.keys())
         prices, dividends = self.price_fetcher.fetch_all(tickers)
+        self.exchange_rate = self.price_fetcher.fetch_exchange_rate()
         self.portfolio.update_prices(prices, dividends)
         if self.ui:
             self.ui.update_ui()
