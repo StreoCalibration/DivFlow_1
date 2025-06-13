@@ -1,17 +1,16 @@
+flowchart TB
+  subgraph Desktop_App ["Desktop App"]
+    UI["UI (tkinter/Qt)"]
+    Logic["PortfolioApp Logic"]
+  end
 
-```mermaid
-%% Mermaid Deployment Diagram
-deploymentDiagram
-    node "Desktop App" {
-        component "UI (tkinter/Qt)"
-        component "PortfolioApp Logic"
-    }
-    node "Local Storage" {
-        database "JSON / SQLite"
-    }
-    node "External API" {
-        component "Price Data Service"
-    }
-    "Desktop App" --> "Local Storage"
-    "Desktop App" --> "External API"
-```
+  subgraph Local_Storage ["Local Storage"]
+    DB["JSON / SQLite"]
+  end
+
+  subgraph External_API ["External API"]
+    API["Price Data Service"]
+  end
+
+  Desktop_App --> Local_Storage
+  Desktop_App --> External_API
