@@ -1,5 +1,5 @@
 import random
-from typing import Dict, Iterable, Tuple
+from typing import Dict, Iterable, Tuple, Optional
 
 
 class PriceFetcher:
@@ -9,7 +9,7 @@ class PriceFetcher:
         # 한 세션 내에서 동일한 시세를 유지하기 위해 캐시를 사용한다.
         self._price_cache: Dict[str, float] = {}
         self._dividend_cache: Dict[str, float] = {}
-        self._exchange_rate: float | None = None
+        self._exchange_rate: Optional[float] = None
 
     def fetch_close_price(self, ticker: str) -> float:
         """어제 종가를 임의의 값으로 반환한다."""

@@ -1,13 +1,13 @@
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from .asset import Asset
 from .portfolio import Portfolio
 
 
 class PortfolioStorage:
-    def __init__(self, path: str | Path = Path("data") / "portfolio.json") -> None:
+    def __init__(self, path: Union[str, Path] = Path("data") / "portfolio.json") -> None:
         self.path = Path(path)
         # Ensure the directory for the storage file exists
         self.path.parent.mkdir(parents=True, exist_ok=True)
