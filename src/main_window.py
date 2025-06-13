@@ -53,10 +53,15 @@ class MainWindow(tk.Tk):
 
         self.btn_add = ttk.Button(form, text="추가", command=self.on_add_or_update)
         self.btn_add.grid(row=1, column=4, padx=5)
-        ttk.Button(form, text="삭제", command=self.on_remove_asset).grid(row=1, column=5, padx=5)
-        ttk.Button(form, text="갱신", command=self.on_refresh_clicked).grid(row=1, column=6)
-        ttk.Button(form, text="저장", command=self.on_save_clicked).grid(row=1, column=7)
-        ttk.Button(form, text="불러오기", command=self.on_load_clicked).grid(row=1, column=8)
+
+        self.btn_cancel = ttk.Button(form, text="취소", command=self.on_cancel_edit)
+        self.btn_cancel.grid(row=1, column=5, padx=5)
+        self.btn_cancel.grid_remove()
+
+        ttk.Button(form, text="삭제", command=self.on_remove_asset).grid(row=1, column=6, padx=5)
+        ttk.Button(form, text="갱신", command=self.on_refresh_clicked).grid(row=1, column=7)
+        ttk.Button(form, text="저장", command=self.on_save_clicked).grid(row=1, column=8)
+        ttk.Button(form, text="불러오기", command=self.on_load_clicked).grid(row=1, column=9)
 
         rebalance_frame = ttk.Frame(frame)
         rebalance_frame.pack(fill=tk.X)
@@ -123,6 +128,7 @@ class MainWindow(tk.Tk):
             self.editing_ticker = None
             self.entry_ticker.config(state="normal")
             self.btn_add.config(text="추가")
+            self.btn_cancel.grid_remove()
         else:
             asset = Asset(ticker=ticker, weight=weight, shares=shares, avg_cost=cost)
             self.app.portfolio.add_asset(asset)
@@ -130,6 +136,15 @@ class MainWindow(tk.Tk):
         for entry in (self.entry_ticker, self.entry_weight, self.entry_shares, self.entry_cost):
             entry.delete(0, tk.END)
         self.update_ui()
+
+    def on_cancel_edit(self) -> None:
+        """편집 모드를 취소하고 입력 필드를 초기화한다."""
+        self.editing_ticker = None
+        self.entry_ticker.config(state="normal")
+        self.btn_add.config(text="추가")
+        self.btn_cancel.grid_remove()
+        for entry in (self.entry_ticker, self.entry_weight, self.entry_shares, self.entry_cost):
+            entry.delete(0, tk.END)
 
     def on_edit_asset(self, event) -> None:
         item_id = self.table.identify_row(event.y)
@@ -151,6 +166,7 @@ class MainWindow(tk.Tk):
         self.entry_cost.delete(0, tk.END)
         self.entry_cost.insert(0, str(asset.avg_cost))
         self.btn_add.config(text="수정")
+        self.btn_cancel.grid()
 
     def on_remove_asset(self) -> None:
         selected = self.table.selection()
@@ -163,6 +179,7 @@ class MainWindow(tk.Tk):
             self.editing_ticker = None
             self.entry_ticker.config(state="normal")
             self.btn_add.config(text="추가")
+            self.btn_cancel.grid_remove()
             for entry in (self.entry_ticker, self.entry_weight, self.entry_shares, self.entry_cost):
                 entry.delete(0, tk.END)
         self.update_ui()
