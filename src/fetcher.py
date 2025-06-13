@@ -1,9 +1,7 @@
-import json
-import urllib.error
-import urllib.parse
-import urllib.request
 import time
 from typing import Dict, Iterable, Tuple, Optional
+
+import yfinance as yf
 
 
 class PriceFetcher:
@@ -17,43 +15,13 @@ class PriceFetcher:
         self._exchange_rate: Optional[float] = None
         self._rate_timestamp: float = 0.0
 
-    def _fetch_yahoo_quote(self, ticker: str) -> Optional[dict]:
-        """야후 파이낸스에서 쿼트 정보를 가져온다."""
-        url = (
-            "https://query1.finance.yahoo.com/v7/finance/quote?symbols="
-            f"{urllib.parse.quote(ticker)}"
-        )
+    def _fetch_yahoo_info(self, ticker: str) -> Optional[dict]:
+        """yfinance 패키지를 사용해 티커 정보를 가져온다."""
         try:
-            with urllib.request.urlopen(url, timeout=5) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-        except (urllib.error.URLError, json.JSONDecodeError) as e:
-            print(f"API 요청 실패({ticker}): {e}")
+            return yf.Ticker(ticker).info
+        except Exception as e:
+            print(f"yfinance 조회 실패({ticker}): {e}")
             return None
-
-        result = data.get("quoteResponse", {}).get("result")
-        if not result:
-            print(f"API 응답 오류({ticker}): result 없음")
-            return None
-        return result[0]
-
-    def _fetch_jp_quote(self, ticker: str) -> Optional[dict]:
-        """야후 파이낸스 일본판에서 쿼트 정보를 가져온다."""
-        url = (
-            "https://query1.finance.yahoo.co.jp/v7/finance/quote?symbols="
-            f"{urllib.parse.quote(ticker)}"
-        )
-        try:
-            with urllib.request.urlopen(url, timeout=5) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-        except (urllib.error.URLError, json.JSONDecodeError) as e:
-            print(f"JP API 요청 실패({ticker}): {e}")
-            return None
-
-        result = data.get("quoteResponse", {}).get("result")
-        if not result:
-            print(f"JP API 응답 오류({ticker}): result 없음")
-            return None
-        return result[0]
 
     def fetch_close_price(self, ticker: str) -> float:
         """종가를 외부 API에서 조회한다."""
@@ -62,18 +30,14 @@ class PriceFetcher:
             ticker not in self._price_cache
             or now - self._price_timestamp.get(ticker, 0) > 3600
         ):
-            quote = self._fetch_yahoo_quote(ticker)
-            prev_close = None
-            if quote and "regularMarketPreviousClose" in quote:
-                prev_close = quote["regularMarketPreviousClose"]
-            if prev_close is None:
-                jp_quote = self._fetch_jp_quote(ticker)
-                if jp_quote and "regularMarketPreviousClose" in jp_quote:
-                    prev_close = jp_quote["regularMarketPreviousClose"]
-            if prev_close is not None:
-                self._price_cache[ticker] = float(prev_close)
-            elif quote and "regularMarketPrice" in quote:
-                self._price_cache[ticker] = float(quote["regularMarketPrice"])
+            info = self._fetch_yahoo_info(ticker)
+            price = None
+            if info and "regularMarketPreviousClose" in info:
+                price = info["regularMarketPreviousClose"]
+            if price is None and info and "regularMarketPrice" in info:
+                price = info["regularMarketPrice"]
+            if price is not None:
+                self._price_cache[ticker] = float(price)
             else:
                 print(f"시세 조회 실패({ticker})")
                 self._price_cache[ticker] = 0.0
@@ -82,9 +46,9 @@ class PriceFetcher:
 
     def fetch_dividend(self, ticker: str) -> float:
         if ticker not in self._dividend_cache:
-            quote = self._fetch_yahoo_quote(ticker)
-            if quote and "trailingAnnualDividendYield" in quote and quote["trailingAnnualDividendYield"] is not None:
-                self._dividend_cache[ticker] = float(quote["trailingAnnualDividendYield"])
+            info = self._fetch_yahoo_info(ticker)
+            if info and info.get("trailingAnnualDividendYield") is not None:
+                self._dividend_cache[ticker] = float(info["trailingAnnualDividendYield"])
             else:
                 print(f"배당 수익률 조회 실패({ticker})")
                 self._dividend_cache[ticker] = 0.0
@@ -99,14 +63,11 @@ class PriceFetcher:
         """원/달러 환율을 외부 API에서 조회한다."""
         now = time.time()
         if self._exchange_rate is None or now - self._rate_timestamp > 3600:
-            url = "https://query1.finance.yahoo.com/v7/finance/quote?symbols=USDKRW=X"
             try:
-                with urllib.request.urlopen(url, timeout=5) as resp:
-                    data = json.loads(resp.read().decode("utf-8"))
-                result = data.get("quoteResponse", {}).get("result")
-                if result:
-                    self._exchange_rate = float(result[0].get("regularMarketPrice", 0.0))
-            except (urllib.error.URLError, json.JSONDecodeError) as e:
+                hist = yf.Ticker("USDKRW=X").history(period="1d")
+                if not hist.empty:
+                    self._exchange_rate = float(hist["Close"].iloc[-1])
+            except Exception as e:
                 print(f"환율 조회 실패: {e}")
                 self._exchange_rate = 0.0
             self._rate_timestamp = now

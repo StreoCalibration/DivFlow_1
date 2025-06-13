@@ -31,8 +31,8 @@ python -m src
 환율 정보는 `data/exchange_rate.json` 파일에 별도로 저장됩니다.
 애플리케이션을 처음 실행하면 `data` 폴더가 자동으로 생성됩니다.
 모든 UI 텍스트는 한국어로 제공됩니다.
-시세 조회 기능(`PriceFetcher`)은 Yahoo Finance API를 기본으로 사용하며,
-일본 종목의 경우 Yahoo Japan API를 통해 전일 종가를 조회합니다.
+시세 조회 기능(`PriceFetcher`)은 `yfinance` 패키지를 이용해
+Yahoo Finance 데이터로 가격과 환율을 조회합니다.
 API 호출이 실패하면 예외 메시지를 출력하고 0을 반환합니다.
 환율과 종가 조회는 1시간 캐시를 사용하여 외부 API 호출을 최소화합니다.
 환율 조회는 캐싱되어 10분에 한 번만 외부 API 호출을 시도합니다.
