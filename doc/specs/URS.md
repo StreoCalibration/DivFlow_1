@@ -1,45 +1,49 @@
-# User Requirements Specification (URS)
+# 사용자 요구사항 명세서 (URS)
 
-## 1. Introduction
-This document captures the user-level requirements for the Dividend ETF Portfolio Management Application.
+## 1. 개요
+본 문서는 배당형 ETF 포트폴리오 관리 애플리케이션의 최종 사용자 관점 요구사항을 정의합니다.
 
-### 1.1 Purpose
-To define the functionalities and constraints from the end-user perspective.
+### 1.1 목적
+사용자가 직관적으로 배당형 ETF 포트폴리오를 구성, 관리, 모니터링할 수 있는 기능을 제공하기 위함입니다.
 
-### 1.2 Scope
-The application allows users to manage a portfolio of dividend-focused ETFs, including setting target allocations, recording purchases, refreshing real-time data, and calculating portfolio metrics.
+### 1.2 범위
+- ETF 종목 추가/삭제
+- 목표 배분 비율 설정
+- 보유 수량 및 매입 단가 입력
+- 실시간 시세 및 배당 수익률 갱신 및 표시
+- 입금 후 자동 리밸런싱 계산
+- 설정 및 포트폴리오 상태 자동 저장/불러오기
 
-## 2. Functional Requirements
-1. **Portfolio Configuration**
-   - FR1.1: User shall be able to add/remove ETF tickers.
-   - FR1.2: User shall be able to set target allocation percentages for each ETF.
-2. **Transaction Recording**
-   - FR2.1: User shall be able to input purchase details: number of shares and average cost per share.
-   - FR2.2: User shall be able to update holdings after additional purchases.
-3. **Data Refresh**
-   - FR3.1: User shall be able to trigger a refresh to fetch current market prices and dividend yields.
-   - FR3.2: System shall display updated portfolio value, individual asset value, gain/loss, and dividend estimates.
-4. **Rebalancing Assistant**
-   - FR4.1: User shall be able to input an additional deposit amount.
-   - FR4.2: System shall calculate and suggest share purchases to match target allocations based on refreshed prices.
-5. **Persistence**
-   - FR5.1: User settings and portfolio state shall be saved automatically.
-   - FR5.2: User shall be able to load the last saved state on application start.
+## 2. 기능 요구사항
+1. **포트폴리오 구성**
+   - FR1.1: 사용자는 ETF 티커를 추가/삭제할 수 있어야 한다.
+   - FR1.2: 사용자는 각 ETF의 목표 배분 비율(%)을 설정할 수 있어야 한다.
+2. **거래 내역 기록**
+   - FR2.1: 사용자는 보유 수량 및 평균 매입 단가를 입력할 수 있어야 한다.
+   - FR2.2: 사용자는 추가 매수 시 보유량이 업데이트되어야 한다.
+3. **데이터 갱신**
+   - FR3.1: 사용자는 “갱신(Refresh)” 버튼으로 실시간 시세 및 배당 수익률을 가져올 수 있어야 한다.
+   - FR3.2: 시스템은 갱신된 포트폴리오 평가금액, 종목별 평가금액, 손익, 배당 예상액을 표시해야 한다.
+4. **리밸런싱 보조**
+   - FR4.1: 사용자는 추가 입금 금액을 입력할 수 있어야 한다.
+   - FR4.2: 시스템은 입력된 금액과 목표 배분 비율에 따라 매수 권장 수량을 계산하여 제안해야 한다.
+5. **영속성**
+   - FR5.1: 사용자 설정 및 포트폴리오 상태는 자동으로 저장되어야 한다.
+   - FR5.2: 애플리케이션 시작 시 마지막 저장된 상태를 불러와야 한다.
 
-## 3. Non-Functional Requirements
-1. **Usability**
-   - NFR1.1: The UI shall be intuitive, with clear labels and prompts.
-   - NFR1.2: Refresh operations shall complete within 5 seconds.
-2. **Reliability**
-   - NFR2.1: The application shall handle API failures gracefully with user-friendly error messages.
-3. **Performance**
-   - NFR3.1: The application shall refresh market data for up to 20 assets in under 5 seconds.
-4. **Maintainability**
-   - NFR4.1: Configuration and state files shall use human-readable formats (JSON or SQLite).
-5. **Portability**
-   - NFR5.1: The application shall run on Windows, macOS, and Linux environments.
+## 3. 비기능 요구사항
+1. **사용성**
+   - NFR1.1: UI는 직관적이고 명확한 레이블과 안내문구를 제공해야 한다.
+   - NFR1.2: 갱신 작업은 5초 이내에 완료되어야 한다.
+2. **신뢰성**
+   - NFR2.1: 외부 API 오류 발생 시 사용자 친화적 에러 메시지를 제공해야 한다.
+3. **성능**
+   - NFR3.1: 최대 20개 자산에 대해 5초 이내에 갱신을 완료해야 한다.
+4. **유지보수성**
+   - NFR4.1: 설정 및 상태 파일은 사람이 읽기 쉬운 JSON 또는 SQLite 형식이어야 한다.
+5. **이식성**
+   - NFR5.1: Windows, macOS, Linux 환경에서 동작해야 한다.
 
-## 4. Assumptions
-- Users have internet connectivity to fetch market data.
-- Users possess an API key if required by the data provider.
-
+## 4. 가정사항
+- 사용자는 인터넷에 연결되어 있어야 한다.
+- 데이터 제공 API 사용 시 API 키가 필요할 수 있다.

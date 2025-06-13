@@ -1,63 +1,63 @@
-# Software Requirements Specification (SRS)
+# 소프트웨어 요구사항 명세서 (SRS)
 
-## 1. System Overview
-The Dividend ETF Portfolio Management Application is a desktop GUI tool for tracking and managing a dividend-focused ETF portfolio.
+## 1. 시스템 개요
+본 애플리케이션은 배당형 ETF 포트폴리오 관리를 위한 데스크탑 GUI 도구입니다.
 
-## 2. External Interface Requirements
+## 2. 외부 인터페이스 요구사항
 
-### 2.1 User Interfaces
-- GUI with table view for portfolio, input panels for settings, buttons for actions.
-- Menu or toolbar for save, load, and refresh functions.
+### 2.1 사용자 인터페이스
+- 포트폴리오를 표 형태로 표시하는 테이블 뷰
+- 설정 입력을 위한 패널(ETF 추가/삭제, 수량/단가 입력, 입금 금액 입력)
+- 주요 동작 버튼(저장, 불러오기, 갱신, 리밸런싱)
 
-### 2.2 Hardware Interfaces
-- Standard PC or laptop environment.
-- No specialized hardware required.
+### 2.2 하드웨어 인터페이스
+- 일반 PC 또는 노트북 환경
+- 별도 하드웨어 요구사항 없음
 
-### 2.3 Software Interfaces
-- Market data API (e.g., Yahoo Finance, Alpha Vantage).
-- Local storage via JSON files or SQLite database.
+### 2.3 소프트웨어 인터페이스
+- 시장 데이터 API (예: Yahoo Finance, Alpha Vantage)
+- 로컬 저장소: JSON 파일 또는 SQLite
 
-### 2.4 Communications Interfaces
-- HTTPS for API calls.
+### 2.4 통신 인터페이스
+- HTTPS 프로토콜을 이용한 API 호출
 
-## 3. System Features
+## 3. 시스템 기능
 
-### 3.1 Portfolio Management
-- Description: Manage ETF list and target allocations.
-- Input: Ticker symbols, allocation percentages.
-- Output: Updated portfolio configuration.
+### 3.1 포트폴리오 관리
+- 설명: ETF 리스트 및 목표 배분 비율 관리
+- 입력: 티커 심볼, 배분 비율
+- 출력: 갱신된 포트폴리오 구성
 
-### 3.2 Transaction Recording
-- Description: Record and update share holdings.
-- Input: Number of shares, cost per share.
-- Output: Updated holdings in local storage.
+### 3.2 거래 내역 기록
+- 설명: 보유 수량 및 단가 기록/업데이트
+- 입력: 보유 수량, 평균 단가
+- 출력: 로컬 저장소에 갱신된 보유 정보
 
-### 3.3 Data Refresh and Display
-- Description: Fetch and display real-time price and dividend data.
-- Input: Refresh command.
-- Output: Table with current price, portfolio value, gain/loss, dividend yield.
+### 3.3 데이터 갱신 및 표시
+- 설명: 실시간 시세 및 배당 수익률 조회 및 표시
+- 입력: 갱신 요청
+- 출력: 현재가, 포트폴리오 평가금, 손익, 배당률 정보를 표로 표시
 
-### 3.4 Rebalancing Suggestion
-- Description: Calculate purchase suggestions based on deposit.
-- Input: Deposit amount.
-- Output: Number of shares to buy per asset.
+### 3.4 리밸런싱 제안
+- 설명: 입금 금액 기반 목표 배분에 따른 매수 수량 계산
+- 입력: 입금 금액
+- 출력: 각 자산별 매수 권장 수량
 
-### 3.5 Persistence and Recovery
-- Description: Automatic save and load of state.
-- Input: Application start/exit events.
-- Output: Restored portfolio state.
+### 3.5 영속성 및 복구
+- 설명: 상태 자동 저장 및 복구
+- 입력: 애플리케이션 시작/종료 이벤트
+- 출력: 복원된 포트폴리오 상태
 
-## 4. Performance Requirements
-- The system shall handle up to 50 ETFs without degradation.
-- Refresh operation shall complete within 5 seconds for 20 ETFs.
+## 4. 성능 요구사항
+- 최대 50개의 ETF에 대해 동작 시 성능 저하 없이 처리
+- 20개의 ETF 갱신 작업은 5초 이내에 완료
 
-## 5. Design Constraints
-- Implemented in Python 3.8+.
-- GUI framework: Tkinter or PyQt5.
-- Data storage: JSON or SQLite.
+## 5. 설계 제약조건
+- Python 3.8 이상
+- GUI 프레임워크: Tkinter 또는 PyQt5
+- 데이터 저장: JSON 파일 또는 SQLite
 
-## 6. Quality Attributes
-- Robust error handling for API and I/O.
-- Clear and responsive UI.
-- Modular code structure for ease of testing.
-
+## 6. 품질 속성
+- 외부 API 및 I/O 오류에 대한 견고한 예외 처리
+- 명확하고 반응성 좋은 UI
+- 모듈화된 코드 구조로 테스트 용이성 확보
