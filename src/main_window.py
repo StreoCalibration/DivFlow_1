@@ -35,9 +35,10 @@ class MainWindow(tk.Tk):
         )
         self.table = ttk.Treeview(frame, columns=columns, show="headings")
         for col in columns:
-            self.table.heading(col, text=col)
-            # 컬럼을 창 크기에 맞춰 늘어나도록 설정
-            self.table.column(col, stretch=True)
+            # 모든 헤더와 셀을 우측 정렬한다
+            self.table.heading(col, text=col, anchor=tk.E)
+            # 컬럼을 창 크기에 맞춰 늘어나도록 설정하고 우측 정렬
+            self.table.column(col, stretch=True, anchor=tk.E)
         self.table.pack(fill=tk.BOTH, expand=True)
         self.table.bind("<Double-1>", self.on_edit_asset)
         # 창 크기가 변할 때 컬럼 너비를 자동 조절
@@ -109,9 +110,9 @@ class MainWindow(tk.Tk):
                     asset.shares,
                     f"{asset.avg_cost:.2f}",
                     f"{price:.2f}",
-                    f"{price*rate:.2f}",
+                    f"{price*rate:.0f}",
                     f"{value:.2f}",
-                    f"{value*rate:.2f}",
+                    f"{value*rate:.0f}",
                 ),
             )
 
