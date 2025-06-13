@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from .asset import Asset
 
@@ -21,7 +21,7 @@ class Portfolio:
         total = self.get_total_value()
         return {t: a.get_weight_percentage(total) for t, a in self.assets.items()}
 
-    def update_prices(self, prices: Dict[str, float], dividends: Dict[str, float] | None = None) -> None:
+    def update_prices(self, prices: Dict[str, float], dividends: Optional[Dict[str, float]] = None) -> None:
         for ticker, price in prices.items():
             if ticker in self.assets:
                 self.assets[ticker].close_price = price
