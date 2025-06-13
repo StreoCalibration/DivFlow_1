@@ -9,7 +9,7 @@
 
 ## 모듈 설명
 - `src/asset.py`: `Asset` 데이터 클래스
-- `src/fetcher.py`: Yahoo Finance에서 가격과 배당을 가져오는 `PriceFetcher`
+- `src/fetcher.py`: `yfinance` 패키지로 가격과 환율을 가져오는 `PriceFetcher`
 - `src/portfolio.py`: 포트폴리오 로직과 `PortfolioApp`
  - `src/storage.py`: 파일 기반 저장소 `PortfolioStorage` (포트폴리오와 환율 정보를 관리)
 - `src/main_window.py`: GUI 구현 `MainWindow`
