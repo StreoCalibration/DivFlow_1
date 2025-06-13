@@ -23,3 +23,6 @@ Python 3.8 이상이 필요합니다. 다음 명령으로 GUI 애플리케이션
 ```bash
 python -m src
 ```
+
+포트폴리오 데이터는 저장 시 `data/portfolio.json` 파일로 관리됩니다.
+애플리케이션을 처음 실행하면 `data` 폴더가 자동으로 생성됩니다.
