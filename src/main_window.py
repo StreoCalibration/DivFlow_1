@@ -11,7 +11,7 @@ class MainWindow(tk.Tk):
         self.app = app
         self.app.set_ui(self)
         self.title("DivFlow")
-        self.geometry("700x400")
+        self.geometry("900x500")
 
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -33,6 +33,8 @@ class MainWindow(tk.Tk):
             "전일종가(원화)",
             "평가금액(외화)",
             "평가금액(원화)",
+            "손익",
+            "예상 배당금",
         )
         self.table = ttk.Treeview(frame, columns=columns, show="headings")
         for col in columns:
@@ -53,10 +55,10 @@ class MainWindow(tk.Tk):
         ttk.Label(form, text="주수").grid(row=0, column=2)
         ttk.Label(form, text="평균 단가").grid(row=0, column=3)
 
-        self.entry_ticker = ttk.Entry(form, width=10)
-        self.entry_weight = ttk.Entry(form, width=7)
-        self.entry_shares = ttk.Entry(form, width=7)
-        self.entry_cost = ttk.Entry(form, width=7)
+        self.entry_ticker = ttk.Entry(form, width=12)
+        self.entry_weight = ttk.Entry(form, width=8)
+        self.entry_shares = ttk.Entry(form, width=8)
+        self.entry_cost = ttk.Entry(form, width=8)
         self.entry_ticker.grid(row=1, column=0)
         self.entry_weight.grid(row=1, column=1)
         self.entry_shares.grid(row=1, column=2)
@@ -85,7 +87,7 @@ class MainWindow(tk.Tk):
         rebalance_frame = ttk.Frame(frame)
         rebalance_frame.pack(fill=tk.X)
         ttk.Label(rebalance_frame, text="입금액(원화)").grid(row=0, column=0)
-        self.entry_deposit = ttk.Entry(rebalance_frame, width=10)
+        self.entry_deposit = ttk.Entry(rebalance_frame, width=12)
         self.entry_deposit.grid(row=0, column=1)
         ttk.Button(rebalance_frame, text="리밸런스", command=self.on_add_fund_clicked).grid(row=0, column=2, padx=5)
 
@@ -110,6 +112,8 @@ class MainWindow(tk.Tk):
         for asset in self.app.portfolio.assets.values():
             price = asset.close_price
             value = asset.get_value()
+            gain = asset.get_gain()
+            dividend = asset.get_dividend_amount()
             self.table.insert(
                 "",
                 tk.END,
@@ -123,6 +127,8 @@ class MainWindow(tk.Tk):
                     f"{price*rate:,.0f}",
                     f"{value:,.2f}",
                     f"{value*rate:,.0f}",
+                    f"{gain:,.2f}",
+                    f"{dividend:,.2f}",
                 ),
             )
 
