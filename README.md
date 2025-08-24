@@ -52,11 +52,14 @@ python -m src
 - 리밸런싱 계산은 남은 입금액을 반복적으로 사용하여 목표 비중에 최대한 맞춰주도록 개선되었습니다.
 
 ## Windows 실행 파일 빌드
-Windows 환경에서 단독 실행 가능한 `DivFlow.exe`를 만들려면 아래 명령을 순서대로 실행하세요.
+PyInstaller의 `--onefile` 모드가 일부 환경에서 `struct.error`를 일으킬 수 있어
+기본 빌드를 디렉터리 모드(`--onedir`)로 제공합니다.
 
 ```bash
-pip install pyinstaller
+pip install --upgrade pyinstaller
 python build_exe.py
 ```
 
-빌드가 끝나면 `dist/DivFlow.exe` 파일이 생성됩니다.
+빌드가 끝나면 `dist/DivFlow/` 폴더에 실행 파일이 생성됩니다.
+리소스를 정리해 크기를 줄인 뒤 단일 파일이 필요하다면 `build_exe.py`에서
+`--onefile` 옵션으로 변경해 사용할 수 있습니다.
