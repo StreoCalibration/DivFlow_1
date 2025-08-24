@@ -50,3 +50,13 @@ python -m src
 - 환율과 종가 조회는 1시간 캐시를 사용하여 외부 API 호출을 최소화합니다.
 - 목표 비중뿐 아니라 현재 비중도 테이블에 표시되어 포트폴리오 상황을 즉시 파악할 수 있습니다.
 - 리밸런싱 계산은 남은 입금액을 반복적으로 사용하여 목표 비중에 최대한 맞춰주도록 개선되었습니다.
+
+## Windows 실행 파일 빌드
+Windows 환경에서 단독 실행 가능한 `DivFlow.exe`를 만들려면 아래 명령을 순서대로 실행하세요.
+
+```bash
+pip install pyinstaller
+python build_exe.py
+```
+
+빌드가 끝나면 `dist/DivFlow.exe` 파일이 생성됩니다.
